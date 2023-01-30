@@ -12,6 +12,7 @@
       - Account name: **Storage Account name**
       - Account key: **Account key**
     - Click next and Connect.
+    ![Image](/data/img/synapse_000419.png)
    
 - #### [Ex 1: Query and Transform the data using serverless SQL pool](lab/Query%20and%20Transform%20the%20data%20using%20serverless%20SQL%20pool.pdf)
 - #### [Ex 2: Query and Transform the data using spark pool](lab/Query%20and%20Transform%20the%20data%20using%20spark%20pool.pdf)
