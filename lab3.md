@@ -49,3 +49,6 @@ Perform the following tasks to prepare your environment for the labs.
 
 8. When prompted, sign into your Azure account again (this is required so that the script can manage resources in your Azure subscription - be sure you use the same credentials as before).
 
+## Ex1: [Import data with PolyBase & COPY using T-SQL and Copy Activity](/lab/Import%20data%20with%20PolyBase%20%26%20COPY%20using%20T-SQL%20and%20Copy%20Activity.pdf)
+
+## Ex2: [Orchestrating Data Movement with Azure Data Factory](/lab/Code%20Free%20Transformation%20using%20Data%20Flow%20in%20ADF.pdf)
