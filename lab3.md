@@ -1,4 +1,4 @@
-## Lab 2: Ingest & Transform Data
+## Lab 3: Ingest & Transform Data
 
 ### Setup steps
 
