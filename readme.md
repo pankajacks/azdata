@@ -4,6 +4,8 @@
 
 ### [Lab 2: Query & Secure Data](/lab2.md#lab-2-query--secure-data)
 
+### [Lab 3: Ingest & Transform Data](/lab3.md)
+
 References:
   Miscorsoft Github
   MS Learn
