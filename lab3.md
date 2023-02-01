@@ -36,6 +36,13 @@ Perform the following tasks to prepare your environment for the labs.
 5. Create a file in the automation directory as follows:
     - Open file browser and go to the above mention file path and create a file with name: **data-load-wwi-02.ps1**
     - Copy the content of file [data-load-wwi-02.txt](/data-load-wwi-02.txt) and past in above created file and save it.
+    - Modify the **data-load-wwi-02.ps1** file as:
+        - # Enter the subscription ID
+        - $selectedSub = ""
+        - # Enter Storage Account Name
+        - $dataLakeAccountName = ""
+        - # Enter Resource Group Name where your storage account is created.
+        - $resourceGroupName = ""
 
 6. Open Azure portal, go to the Azure Data Lake Gen 2 Storage account that you created in previous lab and create a new container **wwi-02**.
 
