@@ -40,7 +40,7 @@ The department are currently relying on the experience of customer services agen
 
 1. In the Azure portal, click on the **Home** hyperlink at the top left of the screen.
 
-2. In the Azure portal, in the blade, click **Resource groups**, and then click **awrgstudxx**, where **xx** are your initials
+2. In the Azure portal, in the blade, click **Resource groups**, and then click **synapse-xx-rg**, where **xx** are your initials
 
 3. Click on **xx-phoneanalysis-ehn**, where **xx** are your initials.
 
@@ -168,7 +168,7 @@ After a few seconds, the app starts displaying phone call records on the screen 
     - **Output alias**: **PhoneCallRefData**
     - **Select Event Hub from your subscriptions**: checked
     - **Subscription**: Your subscription name
-    - **Storage account**: **:awsastudxx**:, where xx is your initials
+    - **Storage account**: **:asadatalakexx**:, where xx is your initials
     - **Container**: **Use existing** and select **phonecalls**
     - **Authentication mode**: select **Connection string**
     - Leave the rest of the entries as default values. Finally, click **Save**.
