@@ -225,7 +225,7 @@ After a few seconds, the app starts displaying phone call records on the screen 
 
 ### Validate streaming data is collected
 
-1. In the Azure portal, in the blade, click **Resource groups**, and then click **awrgstudxx**, and then click on **awsastudxx**, where **xx** are your initials.
+1. In the Azure portal, in the blade, click **Resource groups**, and then click **synapse-xx-rg**, and then click on **asadatalakexx**, where **xx** are your initials.
 
 2. In the Azure portal, click **Containers** box, and then click on the container named **phonecalls**.
 
