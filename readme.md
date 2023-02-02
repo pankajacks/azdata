@@ -6,7 +6,7 @@
 
 ### [Lab 3: Ingest & Transform Data](/lab3.md)
 
-### [Lab 4: Ingest & Transform Data](/lab4.md)
+### [Lab 4: Real-time Stream Analytics](/lab4.md)
 
 
 References:
