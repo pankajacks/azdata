@@ -6,6 +6,9 @@
 
 ### [Lab 3: Ingest & Transform Data](/lab3.md)
 
+### [Lab 4: Ingest & Transform Data](/lab4.md)
+
+
 References:
   Miscorsoft Github
   MS Learn
