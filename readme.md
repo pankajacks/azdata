@@ -8,7 +8,7 @@
 
 ### [Lab 4: Real-time Stream Analytics](/lab4.md)
 
-
+### [Lab 5: Optimize query performance](/lab5.md)
 References:
   Miscorsoft Github
   MS Learn
