@@ -318,7 +318,7 @@ To understand their requirements, let's first execute a distinct count over the 
 
     The query takes between 5 and 7 seconds to execute. That is expected, as distinct counts are one of the most difficult types of queries to optimize.
 
-    The result should be `30,0000`.
+    The result should be `305187`. 
 
 3. In the query window, replace the script with the following to use the HyperLogLog approach:
 
@@ -328,7 +328,7 @@ To understand their requirements, let's first execute a distinct count over the 
 
 4. Select **Run** from the toolbar menu to execute the SQL command.
 
-    The query should take much less time to execute. The result isn't quite the same, for example, it may be `30,1,619`.
+    The query should take much less time to execute. The result isn't quite the same, for example, it may be `311219`.
 
     APPROX_COUNT_DISTINCT returns a result with a **2% accuracy** of true cardinality on average.
 
