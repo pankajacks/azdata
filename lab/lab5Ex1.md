@@ -12,8 +12,10 @@ Before you begin, we need to create a few new tables and load them with data.
 
 4. In the toolbar menu, connect to the **SQLPool01** database to execute the query.
 
-5. In the query window, replace the script with the following and execute it.
+5. In the query window, replace the script with the following and execute it. 
 
+    >Replace asadatalake with your datalake storage account name
+    
     ```sql
     IF OBJECT_ID(N'[dbo].[Category]', N'U') IS NOT NULL
     DROP TABLE [dbo].[Category]
@@ -138,8 +140,9 @@ Before you begin, we need to create a few new tables and load them with data.
     )
     GO
 
+    -- Replace asadatalake with your datalake storage account name
     COPY INTO [wwi_security].[Sale]
-    FROM 'https://solliancepublicdata.blob.core.windows.net/wwi-02/security/factsale.csv'
+    FROM 'https://asadatalakexx.dfs.core.windows.net/wwi-02/security/factsale.csv'
     WITH (
         FILE_TYPE = 'CSV',
         FIRSTROW = 2,
