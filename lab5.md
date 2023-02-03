@@ -15,4 +15,5 @@ This lab uses the dedicated SQL pool. As a first step, make sure it is not pause
 
 
 [Excercise 1: Understanding developer features of Azure Synapse Analytics](lab/lab5Ex1.md)
+
 [Excercise 2: Optimizing data warehouse query performance in Azure Synapse Analytics](lab/lab5Ex2.md)
