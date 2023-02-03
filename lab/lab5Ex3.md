@@ -1,5 +1,31 @@
 ## Exercise 4: Improve query performance
 
+### Task 0: Create date table
+
+1. Execute the following query to create date table:
+
+    ```sql
+        CREATE TABLE [wwi].[Date]
+        (
+            DateId int not null,
+            Day tinyint not null,
+            Month tinyint not null,
+            Quarter tinyint not null,
+            Year smallint not null
+        )
+        WITH
+        (
+            DISTRIBUTION = REPLICATE
+        )
+
+        COPY INTO [wwi].[Date] 
+        FROM 'https://solliancepublicdata.blob.core.windows.net/wwi-02/data-generators/generator-date.csv'
+        WITH (
+            FILE_TYPE = 'CSV'
+        )
+        GO
+    ```
+
 ### Task 1: Use materialized views
 
 As opposed to a standard view, a materialized view pre-computes, stores, and maintains its data in a dedicated SQL pool just like a table. Here is a basic comparison between standard and materialized views:
@@ -219,8 +245,6 @@ As opposed to a standard view, a materialized view pre-computes, stores, and mai
     DBCC PDW_SHOWMATERIALIZEDVIEWOVERHEAD ( 'wwi_perf.mvCustomerSales' )
     ```
 
-    ![Materialized view overhead after update](./media/lab3_materialized_view_updated.png)
-
     There is now a delta stored by the materialized view which results in `TOTAL_ROWS` being greater than `BASE_VIEW_ROWS` and `OVERHEAD_RATIO` being greater than 1.
 
 9. Rebuild the materialized view and check that the overhead ration went back to 1:
@@ -230,8 +254,6 @@ As opposed to a standard view, a materialized view pre-computes, stores, and mai
 
     DBCC PDW_SHOWMATERIALIZEDVIEWOVERHEAD ( 'wwi_perf.mvCustomerSales' )
     ```
-
-    ![Materialized view overhead after rebuild](./media/lab3_materialized_view_rebuilt.png)
 
 ### Task 2: Use result set caching
 
@@ -259,32 +281,22 @@ Result cache is evicted regularly based on a time-aware least recently used algo
 
 2. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
     Look at the output of the query. What is the `is_result_set_caching_on` value for **SQLPool01**? In our case, it is set to `False`, meaning result set caching is currently disabled.
 
-    ![The result set caching is set to False.](media/result-set-caching-disabled.png "SQL query result")
-
-3. In the query window, change the database to **master (1)**, then replace the script **(2)** with the following to activate result set caching:
+3. In the query window, change the database to **master**, then replace the script with the following to activate result set caching:
 
     ```sql
     ALTER DATABASE SQLPool01
     SET RESULT_SET_CACHING ON
     ```
 
-    ![The master database is selected and the script is displayed.](media/enable-result-set-caching.png "Enable result set caching")
-
 4. Select **Run** from the toolbar menu to execute the SQL command.
-
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
 
     > **Important**
     >
     > The operations to create a result set cache and retrieve data from the cache happen on the control node of a dedicated SQL pool instance. When result set caching is turned ON, running queries that return a large result set (for example, >1GB) can cause high throttling on the control node and slow down the overall query response on the instance. Those queries are commonly used during data exploration or ETL operations. To avoid stressing the control node and cause performance issue, users should turn OFF result set caching on the database before running those types of queries.
 
 5. In the toolbar menu, connect to the **SQLPool01** database for the next query.
-
-    ![The connect to option is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-sqlpool01-database.png "Query toolbar")
 
 6. In the query window, replace the script with the following query and immediately check if it hit the cache:
 
@@ -325,11 +337,7 @@ Result cache is evicted regularly based on a time-aware least recently used algo
 
 7. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
     As expected, the result is **`False` (0)**.
-
-    ![The returned value is false.](media/result-cache-hit1.png "Result set cache hit")
 
     Still, you can identify that, while running the query, dedicated SQL pool has also cached the result set.
 
@@ -361,11 +369,7 @@ Result cache is evicted regularly based on a time-aware least recently used algo
 
 9. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
-    The execution plan reveals the building of the result set cache:
-
-    ![The building of the result set cache.](media/result-set-cache-build.png "Result cache build")
+    The execution plan reveals the building of the result set cache.
 
     You can control at the user session level the use of the result set cache.
 
@@ -422,11 +426,7 @@ Result cache is evicted regularly based on a time-aware least recently used algo
 
 11. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
     The result of **`SET RESULT_SET_CACHING OFF`** in the script above is visible in the cache hit test results (The `result_cache_hit` column returns `1` for cache hit, `0` for cache miss, and *negative values* for reasons why result set caching was not used.):
-
-    ![Result cache on and off.](media/result-set-cache-off.png "Result cache on/off results")
 
 12. In the query window, replace the script with the following to check the space used by the result cache:
 
@@ -436,11 +436,7 @@ Result cache is evicted regularly based on a time-aware least recently used algo
 
 13. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
     We can see the amount of space reserved, how much is used by data, the amount used for the index, and how much unused space there is for the result cache in the query results.
-
-    ![Check the size of the result set cache.](media/result-set-cache-size.png "Result cache size")
 
 14. In the query window, replace the script with the following to clear the result set cache:
 
@@ -450,20 +446,14 @@ Result cache is evicted regularly based on a time-aware least recently used algo
 
 15. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
-16. In the query window, change the database to **master (1)**, then replace the script **(2)** with the following to disable result set caching:
+16. In the query window, change the database to **master**, then replace the script with the following to disable result set caching:
 
     ```sql
     ALTER DATABASE SQLPool01
     SET RESULT_SET_CACHING OFF
     ```
 
-    ![The master database is selected and the script is displayed.](media/disable-result-set-caching.png "Disable result set caching")
-
 17. Select **Run** from the toolbar menu to execute the SQL command.
-
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
 
     > **Note**
     >
@@ -509,9 +499,7 @@ For example, if the optimizer estimates that the date your query is filtering on
         Command like 'CREATE STATISTICS%'
     ```
 
-    Notice the special name pattern used for automatically created statistics:
-
-    ![View automatically created statistics](./media/lab3_statistics_automated.png)
+    Notice the special name pattern used for automatically created statistics
 
 3. Check if there are any statistics created for `CustomerId` from the `wwi_perf.Sale_Has` table:
 
@@ -538,8 +526,6 @@ For example, if the optimizer estimates that the date your query is filtering on
     - **Chart type**: Area
     - **Category column**: RANGE_HI_KEY
     - **Legend (series) columns**: RANGE_ROWS
-
-    ![Statistics created for CustomerId](./media/lab3_statistics_customerid.png)
 
     You now have a visual on the statistics created for the `CustomerId` column.
 
