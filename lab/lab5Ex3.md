@@ -543,6 +543,24 @@ Clustered Columnstore Index vs. Heap vs. Clustered and Nonclustered
 
 Clustered indexes may outperform clustered columnstore indexes when a single row needs to be quickly retrieved. For queries where a single or very few row lookup is required to perform with extreme speed, consider a cluster index or nonclustered secondary index. The disadvantage to using a clustered index is that only queries that benefit are the ones that use a highly selective filter on the clustered index column. To improve filter on other columns a nonclustered index can be added to other columns. However, each index which is added to a table adds both space and processing time to loads.
 
+Execute the following script to create the [wwi_perf].[Sale_Index] table with CLUSTERED INDEX (CustomerId):
+
+    ```sql
+        CREATE TABLE [wwi_perf].[Sale_Index]
+        WITH
+        (
+            DISTRIBUTION = HASH ( [CustomerId] ),
+            CLUSTERED INDEX (CustomerId)
+        )
+        AS
+        SELECT
+            *
+        FROM	
+            [wwi_staging].[SaleHeap]
+        OPTION  (LABEL  = 'CTAS : Sale_Index')
+    ```
+
+
 1. Retrieve information about a single customer from the table with CCI:
 
     ```sql
@@ -551,7 +569,7 @@ Clustered indexes may outperform clustered columnstore indexes when a single row
     FROM
         [wwi_perf].[Sale_Hash]
     WHERE
-        CustomerId = 500000
+        CustomerId = 50000
     ```
 
     Take a note of the execution time.
@@ -564,7 +582,7 @@ Clustered indexes may outperform clustered columnstore indexes when a single row
     FROM
         [wwi_perf].[Sale_Index]
     WHERE
-        CustomerId = 500000
+        CustomerId = 50000
     ```
 
     The execution time is similar to the one for the query above. Clustered columnstore indexes have no significant advantage over clustered indexes in the specific scenario of highly selective queries.
@@ -577,7 +595,7 @@ Clustered indexes may outperform clustered columnstore indexes when a single row
     FROM
         [wwi_perf].[Sale_Hash]
     WHERE
-        CustomerId between 400000 and 400100
+        CustomerId between 4000 and 40010
     ```
 
     and then retrieve the same information from the table with a clustered index:
@@ -588,7 +606,7 @@ Clustered indexes may outperform clustered columnstore indexes when a single row
     FROM
         [wwi_perf].[Sale_Index]
     WHERE
-        CustomerId between 400000 and 400100
+        CustomerId between 4000 and 40010
     ```
 
     Run both queries several times to get a stable execution time. Under normal conditions, you should see that even with a relatively small number of customers, the CCI table starts yielding better results than the clustered index table.
@@ -601,8 +619,8 @@ Clustered indexes may outperform clustered columnstore indexes when a single row
     FROM
         [wwi_perf].[Sale_Index]
     WHERE
-        CustomerId between 400000 and 400100
-        and StoreId between 2000 and 4000
+        CustomerId between 4000 and 40010
+        and StoreId between 1000 and 4000
     ```
 
     Take a note of the execution time.
@@ -614,7 +632,3 @@ Clustered indexes may outperform clustered columnstore indexes when a single row
     ```
 
     The creation of the index should complete in a few minutes. Once the index is created, run the previous query again. Notice the improvement in execution time resulting from the newly created non-clustered index.
-
-    >**Note**
-    >
-    >Creating a non-clustered index on the `wwi_perf.Sale_Index` is based on the already existing clustered index. As a bonus exercise, try to create the same type of index on the `wwi_perf.Sale_Hash` table. Can you explain the difference in index creation time?
