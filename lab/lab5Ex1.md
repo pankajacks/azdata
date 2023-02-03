@@ -260,7 +260,7 @@ To do this, you decide to build window functions that use the `PERCENTILE_CONT` 
         SELECT ProductId,
             [Hour],
             SUM(TotalAmount) AS HourSalesTotal
-        FROM [wwi_perf].[Sale_Index]
+        FROM [wwi_staging].[SaleHeap]
         WHERE ProductId = 48 AND [Hour] BETWEEN 8 AND 20
         GROUP BY ProductID, [Hour]) as HourTotals
     ```
