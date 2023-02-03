@@ -1,4 +1,4 @@
-## Exercise 4: Improve query performance
+## Lab 5 Exercise 3: Improve query performance
 
 ### Task 0: Create date table
 
