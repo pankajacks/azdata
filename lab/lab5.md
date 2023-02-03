@@ -130,19 +130,45 @@ Before you begin, we need to create a few new tables and load them with data.
         FIRSTROW = 2
     )
     GO
+    
+    CREATE SCHEMA [wwi_security]
+
+    CREATE TABLE [wwi_security].[Sale]
+    ( 
+        [ProductId] [int]  NOT NULL,
+        [Analyst] [nvarchar](100)  NOT NULL,
+        [Product] [nvarchar](200)  NOT NULL,
+        [CampaignName] [nvarchar](200)  NOT NULL,
+        [Quantity] [int]  NOT NULL,
+        [Region] [nvarchar](50)  NOT NULL,
+        [State] [nvarchar](50)  NOT NULL,
+        [City] [nvarchar](50)  NOT NULL,
+        [Revenue] [nvarchar](50)  NULL,
+        [RevenueTarget] [nvarchar](50)  NULL
+    )
+    WITH
+    (
+        DISTRIBUTION = ROUND_ROBIN,
+        CLUSTERED COLUMNSTORE INDEX
+    )
+    GO
+
+    COPY INTO [wwi_security].[Sale]
+    FROM 'https://solliancepublicdata.blob.core.windows.net/wwi-02/security/factsale.csv'
+    WITH (
+        FILE_TYPE = 'CSV',
+        FIRSTROW = 2,
+        FIELDQUOTE='''',
+        ENCODING='UTF8'
+    )
+    GO
     ```
-
-6. Select **Run** from the toolbar menu to execute the SQL command.
-
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
-    After a few seconds, you should see that the query successfully completed.
 
 ### Task 2: Using window functions
 
-Tailwind Traders is looking for ways to more efficiently analyze their sales data without relying on expensive cursors, subqueries, and other outdated methods they use today.
+To more efficiently analyze data without relying on expensive cursors, subqueries, and other outdated methods.
 
-You propose using window functions to perform calculations over a set of rows. With these functions, you treat groups of rows as an entity.
+Use window functions to perform calculations over a set of rows. With these functions, you treat groups of rows as an entity.
 
 #### Task 2.1: OVER clause
 
@@ -150,15 +176,9 @@ One of the key components of window functions is the **`OVER`** clause. This cla
 
 1. Select the **Develop** hub.
 
-    ![The develop hub is highlighted.](media/develop-hub.png "Develop hub")
-
-2. From the **Develop** menu, select the **+** button **(1)** and choose **SQL Script (2)** from the context menu.
-
-    ![The SQL script context menu item is highlighted.](media/synapse-studio-new-sql-script.png "New SQL script")
+2. From the **Develop** menu, select the **+** button and choose **SQL Script** from the context menu.
 
 3. In the toolbar menu, connect to the **SQLPool01** database to execute the query.
-
-    ![The connect to option is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-connect.png "Query toolbar")
 
 4. In the query window, replace the script with the following to use the `OVER` clause with data from the `wwi_security.Sale` table:
 
@@ -175,15 +195,11 @@ One of the key components of window functions is the **`OVER`** clause. This cla
 
 5. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
+    When we use `PARTITION BY` with the `OVER` clause, we divide the query result set into partitions. The window function is applied to each partition separately and computation restarts for each partition.
 
-    When we use `PARTITION BY` with the `OVER` clause **(1)**, we divide the query result set into partitions. The window function is applied to each partition separately and computation restarts for each partition.
+    The script we executed uses the OVER clause with ROW_NUMBER function to display a row number for each row within a partition. The partition in our case is the `Region` column. The ORDER BY clause specified in the OVER clause orders the rows in each partition by the column `Quantity`. The ORDER BY clause in the SELECT statement determines the order in which the entire query result set is returned.
 
-    ![The script output is shown.](media/over-partition.png "SQL script")
-
-    The script we executed uses the OVER clause with ROW_NUMBER function **(1)** to display a row number for each row within a partition. The partition in our case is the `Region` column. The ORDER BY clause **(2)** specified in the OVER clause orders the rows in each partition by the column `Quantity`. The ORDER BY clause in the SELECT statement determines the order in which the entire query result set is returned.
-
-    **Scroll down** in the results view until the **Row Number** count **(3)** starts over with a **different region (4)**. Since the partition is set to `Region`, the `ROW_NUMBER` resets when the region changes. Essentially, we've partitioned by region and have a result set identified by the number of rows in that region.
+    **Scroll down** in the results view until the **Row Number** count starts over with a **different region**. Since the partition is set to `Region`, the `ROW_NUMBER` resets when the region changes. Essentially, we've partitioned by region and have a result set identified by the number of rows in that region.
 
 #### Task 2.2: Aggregate functions
 
@@ -209,17 +225,13 @@ Now let's use aggregate functions with our window by expanding on our query that
 
 2. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
     In our query, we added the `SUM`, `AVG`, `COUNT`, `MIN`, and `MAX` aggregate functions. Using the OVER clause is more efficient than using subqueries.
-
-    ![The script output is shown.](media/over-partition-aggregates.png "SQL script")
 
 #### Task 2.3: Analytic functions
 
 Analytic functions calculate an aggregate value based on a group of rows. Unlike aggregate functions, however, analytic functions can return multiple rows for each group. Use analytic functions to compute moving averages, running totals, percentages, or top-N results within a group.
 
-Tailwind Traders has book sales data they import from their online store and wish to compute percentages of book downloads by category.
+Let suppose a company Tailwind Traders have a book sales data imported from their online store and wish to compute percentages of book downloads by category.
 
 To do this, you decide to build window functions that use the `PERCENTILE_CONT` and `PERCENTILE_DISC` functions.
 
@@ -242,17 +254,13 @@ To do this, you decide to build window functions that use the `PERCENTILE_CONT` 
 
 2. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
+    In this query, we use **PERCENTILE_CONT** and **PERCENTILE_DISC** to find the median number of downloads in each book category. These functions may not return the same value. PERCENTILE_CONT interpolates the appropriate value, which may or may not exist in the data set, while PERCENTILE_DISC always returns an actual value from the set. To explain further, PERCENTILE_DISC computes a specific percentile for sorted values in an entire rowset or within a rowset's distinct partitions.
 
-    ![The percentile results are displayed.](media/percentile.png "Percentile")
+    > The `0.5` value passed to the **percentile functions** computes the 50th percentile, or the median, of the downloads.
 
-    In this query, we use **PERCENTILE_CONT (1)** and **PERCENTILE_DISC (2)** to find the median number of downloads in each book category. These functions may not return the same value. PERCENTILE_CONT interpolates the appropriate value, which may or may not exist in the data set, while PERCENTILE_DISC always returns an actual value from the set. To explain further, PERCENTILE_DISC computes a specific percentile for sorted values in an entire rowset or within a rowset's distinct partitions.
+    The **WITHIN GROUP** expression specifies a list of values to sort and compute the percentile over. Only one ORDER BY expression is allowed, and the default sort order is ascending.
 
-    > The `0.5` value passed to the **percentile functions (1 & 2)** computes the 50th percentile, or the median, of the downloads.
-
-    The **WITHIN GROUP** expression **(3)** specifies a list of values to sort and compute the percentile over. Only one ORDER BY expression is allowed, and the default sort order is ascending.
-
-    The **OVER** clause **(4)** divides the FROM clause's result set into partitions, in this case, `Category`. The percentile function is applied to these partitions.
+    The **OVER** clause divides the FROM clause's result set into partitions, in this case, `Category`. The percentile function is applied to these partitions.
 
 3. In the query window, replace the script with the following to use the LAG analytic function:
 
@@ -268,7 +276,7 @@ To do this, you decide to build window functions that use the `PERCENTILE_CONT` 
             [Hour],
             SUM(TotalAmount) AS HourSalesTotal
         FROM [wwi_perf].[Sale_Index]
-        WHERE ProductId = 3848 AND [Hour] BETWEEN 8 AND 20
+        WHERE ProductId = 48 AND [Hour] BETWEEN 8 AND 20
         GROUP BY ProductID, [Hour]) as HourTotals
     ```
 
@@ -277,12 +285,8 @@ To do this, you decide to build window functions that use the `PERCENTILE_CONT` 
     To accomplish this, you use the LAG analytic function. This function accesses data from a previous row in the same result set without the use of a self-join. LAG provides access to a row at a given physical offset that comes before the current row. We use this analytic function to compare values in the current row with values in a previous row.
 
 4. Select **Run** from the toolbar menu to execute the SQL command.
-
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
-    ![The lag results are displayed.](media/lag.png "LAG function")
-
-    In this query, we use the **LAG function (1)** to return the **difference in sales (2)** for a specific product over peak sales hours (8-20). We also calculate the difference in sales from one row to the next **(3)**. Notice that because there is no lag value available for the first row, the default of zero (0) is returned.
+   
+    In this query, we use the **LAG function** to return the **difference in sales** for a specific product over peak sales hours (8-20). We also calculate the difference in sales from one row to the next. Notice that because there is no lag value available for the first row, the default of zero (0) is returned.
 
 #### Task 2.4: ROWS clause
 
@@ -307,13 +311,9 @@ To achieve this, you use ROWS in combination with UNBOUNDED PRECEDING to limit t
 
 2. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
+    In this query, we use the `FIRST_VALUE` analytic function to retrieve the book title with the fewest downloads, as indicated by the **`ROWS UNBOUNDED PRECEDING`** clause over the `Country` partition. The `UNBOUNDED PRECEDING` option set the window start to the first row of the partition, giving us the title of the book with the fewest downloads for the country within the partition.
 
-    ![The rows results are displayed.](media/rows-unbounded-preceding.png "ROWS with UNBOUNDED PRECEDING")
-
-    In this query, we use the `FIRST_VALUE` analytic function to retrieve the book title with the fewest downloads, as indicated by the **`ROWS UNBOUNDED PRECEDING`** clause over the `Country` partition **(1)**. The `UNBOUNDED PRECEDING` option set the window start to the first row of the partition, giving us the title of the book with the fewest downloads for the country within the partition.
-
-    In the result set, we can scroll through the list that of books by country, sorted by number of downloads in ascending order. Here we see that for Germany, `Fallen Kitten of the Sword - The Ultimate Quiz` had the most downloads, and `Notebooks for Burning` had the fewest in Sweden **(2)**.
+    In the result set, we can scroll through the list that of books by country, sorted by number of downloads in ascending order. Here we see that for Germany, `Fallen Kitten of the Sword - The Ultimate Quiz` had the most downloads, and `Notebooks for Burning` had the fewest in Sweden.
 
 ### Task 3: Approximate execution using HyperLogLog functions
 
@@ -326,28 +326,24 @@ To understand their requirements, let's first execute a distinct count over the 
 1. In the query window, replace the script with the following:
 
     ```sql
-    SELECT COUNT(DISTINCT CustomerId) from wwi_poc.Sale
+    SELECT COUNT(DISTINCT CustomerId) from wwi_staging.SaleHeap
     ```
 
 2. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
+    The query takes between 5 and 7 seconds to execute. That is expected, as distinct counts are one of the most difficult types of queries to optimize.
 
-    The query takes between 50 and 70 seconds to execute. That is expected, as distinct counts are one of the most difficult types of queries to optimize.
-
-    The result should be `1,000,000`.
+    The result should be `30,0000`.
 
 3. In the query window, replace the script with the following to use the HyperLogLog approach:
 
     ```sql
-    SELECT APPROX_COUNT_DISTINCT(CustomerId) from wwi_poc.Sale
+    SELECT APPROX_COUNT_DISTINCT(CustomerId) from wwi_staging.SaleHeap
     ```
 
 4. Select **Run** from the toolbar menu to execute the SQL command.
 
-    ![The run button is highlighted in the query toolbar.](media/synapse-studio-query-toolbar-run.png "Run")
-
-    The query should take much less time to execute. The result isn't quite the same, for example, it may be `1,001,619`.
+    The query should take much less time to execute. The result isn't quite the same, for example, it may be `30,1,619`.
 
     APPROX_COUNT_DISTINCT returns a result with a **2% accuracy** of true cardinality on average.
 
