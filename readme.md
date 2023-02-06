@@ -9,7 +9,14 @@
 ### [Lab 4: Real-time Stream Analytics](/lab4.md)
 
 ### [Lab 5: Optimize query performance](/lab5.md)
+
+### [Lab 6: CI CD in Azure Synapse Analytics](/lab/CI-CD%20Synapse.pdf)
+
+
 References:
+
   Miscorsoft Github
+  
   MS Learn
+  
   Azure Sample Github
