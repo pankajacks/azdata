@@ -1,0 +1,53 @@
+# Sample of how to deploy to an Azure Synapse Serverless SQL Pool
+# You can use a self-hosted agent installed locally for this to work
+# You can also use a Microsoft-hosted agent for the Azure services
+
+# For this pipeline you also need to setup the below pipeline variables
+  # sqlinstance - Your Serverless SQL Pool endpoint 
+    #(the one that ends with -ondemand)
+  # database - The database in the SQL Pool you want the update deployed to
+    # Note it has to exist BEFORE this the scripts are run
+  # UserName - User name to connect to the Serverless SQL Pool endpoint
+    # try and keep this secret
+  # Pw - Password of above user, MUST be wrapped in single quotes for it to work.
+    # For example, 'SecretPW123'
+    # Definitely keep this one secret
+
+# Optional variable groups you can use
+# Uncomment the below to use them
+
+# variables:
+# - group: AzureSynapseServerlessKeyVault
+# - group: AzureSynapseServerlessNonSensitive
+
+variables:
+- group: AzureSynapseServerlessPrd
+
+trigger:
+- main
+
+pool: 
+  vmImage: 'windows-latest'
+
+stages:
+
+- stage: RunScripts
+  displayName: 'Run Migration-based scripts'
+
+  jobs:
+    - job: 'RunScripts'
+      displayName: 'Run Migration-based scripts'
+      steps:
+      - task: PowerShell@2
+        displayName: 'Install dbops PoSh Module'
+        inputs:
+          targetType: 'inline'
+          script: 'Install-Module -Name dbops -Force -PassThru'
+
+      - task: PowerShell@2
+        displayName: 'Run migration-based scripts'
+        inputs:
+          targetType: 'inline'
+          script: |
+            $SecurePw=ConvertTo-SecureString $(sql-pwd) –asplaintext –force
+            Install-DBOScript -ScriptPath scripts -sqlinstance $(sqlinstance) -Database $(Database) -UserName $(SQLUserName) -Password $($SecurePw) -SchemaVersionTable $null
