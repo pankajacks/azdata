@@ -119,7 +119,8 @@ Before you begin, we need to create a few new tables and load them with data.
     GO
     
     CREATE SCHEMA [wwi_security]
-
+    GO
+    
     CREATE TABLE [wwi_security].[Sale]
     ( 
         [ProductId] [int]  NOT NULL,
